@@ -1,9 +1,9 @@
 import { Router } from 'express';
 import { generateUsers, generatePets } from '../utils/mocking.js';
 
-// Ajustár las rutas 
-import userModel from '../dao/mongo/models/User.js';
-import petModel from '../dao/mongo/models/Pet.js';
+// ✅ Ajuste de imports según tu estructura de carpetas
+import userModel from '../dao/models/User.js';
+import petModel from '../dao/models/Pet.js';
 
 const router = Router();
 
