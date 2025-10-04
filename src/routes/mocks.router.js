@@ -1,7 +1,6 @@
 import { Router } from 'express';
 import { generateUsers, generatePets } from '../utils/mocking.js';
 
-// ✅ Ajuste de imports según tu estructura de carpetas
 import userModel from '../dao/models/User.js';
 import petModel from '../dao/models/Pet.js';
 
@@ -36,7 +35,6 @@ router.get('/mockingpets', async (req, res) => {
 /**
  * POST /api/mocks/generateData
  * Body: { "users": 50, "pets": 30 }
- * Genera e INSERTA en Mongo la cantidad indicada.
  */
 router.post('/generateData', async (req, res) => {
   try {
