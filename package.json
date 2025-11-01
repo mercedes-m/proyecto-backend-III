@@ -29,5 +29,13 @@
     "mocha": "^10.8.2",
     "nyc": "^17.1.0",
     "supertest": "^7.1.4"
+  },
+  "nyc": {
+    "all": true,
+    "include": ["src/**/*.js"],
+    "exclude": ["test/**"],
+    "extension": [".js"],
+    "reporter": ["text-summary", "html"],
+    "report-dir": "./coverage"
   }
 }
