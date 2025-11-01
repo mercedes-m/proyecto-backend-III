@@ -7,27 +7,34 @@ import usersRouter from './routes/users.router.js';
 import petsRouter from './routes/pets.router.js';
 import adoptionsRouter from './routes/adoption.router.js';
 import sessionsRouter from './routes/sessions.router.js';
-import mocksRouter from './routes/mocks.router.js'; 
+import mocksRouter from './routes/mocks.router.js';
 
 const app = express();
 const PORT = process.env.PORT || 8080;
 
-// conexión a Mongo con log de estado
-mongoose.connect(process.env.MONGO_URL)
+// Conexión a MongoDB (usa MONGO_URL de .env o .env.test)
+mongoose
+  .connect(process.env.MONGO_URL)
   .then(() => console.log('Conectado a MongoDB'))
-  .catch(err => console.error('Error al conectar con MongoDB:', err));
+  .catch((err) => console.error('Error al conectar con MongoDB:', err.message));
 
 app.use(express.json());
 app.use(cookieParser());
 
-// routers
+// Healthcheck
+app.get('/health', (_req, res) => res.status(200).send('OK'));
+
+// Routers
 app.use('/api/users', usersRouter);
 app.use('/api/pets', petsRouter);
 app.use('/api/adoptions', adoptionsRouter);
 app.use('/api/sessions', sessionsRouter);
-app.use('/api/mocks', mocksRouter); 
+app.use('/api/mocks', mocksRouter);
 
-// healthcheck opcional
-app.get('/health', (req, res) => res.send('OK'));
+// Exportar la app para poder testear con supertest
+export default app;
 
-app.listen(PORT, () => console.log(`Servidor escuchando en el puerto ${PORT}`));
+// Levantar servidor SOLO si no estamos en test
+if (process.env.NODE_ENV !== 'test') {
+  app.listen(PORT, () => console.log(`Servidor escuchando en el puerto ${PORT}`));
+}
