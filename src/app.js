@@ -9,8 +9,15 @@ import adoptionsRouter from './routes/adoption.router.js';
 import sessionsRouter from './routes/sessions.router.js';
 import mocksRouter from './routes/mocks.router.js';
 
+// Swagger
+import swaggerUi from 'swagger-ui-express';
+import { swaggerSpec } from './docs/swagger.js';
+
 const app = express();
 const PORT = process.env.PORT || 8080;
+
+// (Opcional) silenciar warning de strictQuery en Mongoose 7
+// mongoose.set('strictQuery', true);
 
 // Conexión a MongoDB (usa MONGO_URL de .env o .env.test)
 mongoose
@@ -30,6 +37,9 @@ app.use('/api/pets', petsRouter);
 app.use('/api/adoptions', adoptionsRouter);
 app.use('/api/sessions', sessionsRouter);
 app.use('/api/mocks', mocksRouter);
+
+// Swagger UI
+app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Exportar la app para poder testear con supertest
 export default app;
