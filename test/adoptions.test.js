@@ -80,24 +80,21 @@ describe('Adoption Router - Functional Tests', function () {
   });
 
   it('POST /api/adoptions debe crear una adopción (éxito)', async function () {
-    // Si tu router usa la variante con body (shim agregado): POST /api/adoptions
-    const res = await request(app)
-      .post('/api/adoptions')
-      .set('Content-Type', 'application/json')
-      // Cambiá a { userId, petId } si tu controller lo espera así.
-      .send({ uid: userId, pid: petId });
+  // Usamos la ruta original por params, que tu API soporta seguro
+  const res = await request(app)
+    .post(`/api/adoptions/${userId}/${petId}`)
+    .set('Content-Type', 'application/json');
 
-    // Si preferís el contrato original, usa en su lugar:
-    // const res = await request(app).post(`/api/adoptions/${userId}/${petId}`);
+  // Aceptamos 200 o 201 según implementación
+  expect([200, 201]).to.include(res.status);
 
-    expect([200, 201]).to.include(res.status);
+  // Guardamos el id creado para el GET by id
+  const body = res.body || {};
+  const created = body.payload ?? body;
+  adoptionId = created?._id || created?.id;
 
-    const createdDoc = extractDocWithId(res.body);
-    expect(createdDoc, 'la respuesta no contiene un documento con _id/id').to.exist;
-
-    adoptionId = createdDoc._id || createdDoc.id;
-    expect(adoptionId, 'no se pudo extraer el id de la adopción creada').to.exist;
-  });
+  expect(adoptionId, 'adoptionId creado').to.exist;
+});
 
   it('GET /api/adoptions debe listar adopciones', async function () {
     const res = await request(app).get('/api/adoptions');
