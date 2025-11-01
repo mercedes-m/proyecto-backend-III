@@ -14,8 +14,8 @@ const router = Router();
  * @swagger
  * /api/users:
  *   get:
- *     summary: Listar usuarios
  *     tags: [Users]
+ *     summary: Listar usuarios
  *     responses:
  *       200:
  *         description: Lista de usuarios
@@ -24,16 +24,26 @@ const router = Router();
  *             schema:
  *               type: object
  *               properties:
- *                 status: { type: string, example: "success" }
+ *                 status:
+ *                   type: string
+ *                   example: success
  *                 payload:
  *                   type: array
  *                   items:
  *                     type: object
  *                     properties:
- *                       _id: { type: string, example: "665fa1e2b8d2a0a1c2d3e4f5" }
- *                       first_name: { type: string, example: "Ana" }
- *                       last_name: { type: string, example: "García" }
- *                       email: { type: string, example: "ana@example.com" }
+ *                       _id:
+ *                         type: string
+ *                         example: "665fa1e2b8d2a0a1c2d3e4f5"
+ *                       first_name:
+ *                         type: string
+ *                         example: "Ana"
+ *                       last_name:
+ *                         type: string
+ *                         example: "García"
+ *                       email:
+ *                         type: string
+ *                         example: "ana@example.com"
  */
 router.get('/', usersController.getAllUsers);
 
@@ -41,34 +51,48 @@ router.get('/', usersController.getAllUsers);
  * @swagger
  * /api/users:
  *   post:
- *     summary: Crear usuario (simple)
- *     description: Crea un usuario básico. Si tu proyecto centraliza el registro en `/api/sessions/register`, podés usarlo en su lugar. Este endpoint existe para cumplir con la documentación mínima solicitada.
  *     tags: [Users]
+ *     summary: Crear usuario (simple)
+ *     description: Crea un usuario básico.
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
  *             type: object
+ *             required: [first_name, last_name, email, password]
  *             properties:
- *               first_name: { type: string }
- *               last_name: { type: string }
- *               email: { type: string, format: email }
- *               password: { type: string }
+ *               first_name: { type: string, example: "Ada" }
+ *               last_name:  { type: string, example: "Lovelace" }
+ *               email:      { type: string, format: email, example: "ada@example.com" }
+ *               password:   { type: string, example: "coder123" }
+ *               role:       { type: string, enum: [user, admin], example: "user" }
  *     responses:
  *       201:
  *         description: Usuario creado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status: { type: string, example: "success" }
+ *                 payload:
+ *                   type: object
+ *                   properties:
+ *                     _id: { type: string, example: "665fa1e2b8d2a0a1c2d3e4f5" }
+ *                     first_name: { type: string, example: "Ada" }
+ *                     last_name: { type: string, example: "Lovelace" }
+ *                     email: { type: string, example: "ada@example.com" }
+ *                     role: { type: string, example: "user" }
  *       400:
  *         description: Datos inválidos
  *       501:
  *         description: No implementado en este controlador
  */
 router.post('/', async (req, res, next) => {
-  // Si existe createUser en el controller, lo delegamos.
   if (typeof usersController.createUser === 'function') {
     return usersController.createUser(req, res, next);
   }
-  // Fallback seguro si tu proyecto no define createUser aquí.
   return res
     .status(501)
     .json({ status: 'error', error: 'POST /api/users no implementado en este proyecto.' });
@@ -78,8 +102,8 @@ router.post('/', async (req, res, next) => {
  * @swagger
  * /api/users/{uid}:
  *   get:
- *     summary: Obtener usuario por ID
  *     tags: [Users]
+ *     summary: Obtener usuario por ID
  *     parameters:
  *       - in: path
  *         name: uid
@@ -89,6 +113,21 @@ router.post('/', async (req, res, next) => {
  *     responses:
  *       200:
  *         description: Usuario encontrado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status: { type: string, example: "success" }
+ *                 payload:
+ *                   type: object
+ *                   properties:
+ *                     _id: { type: string, example: "665fa1e2b8d2a0a1c2d3e4f5" }
+ *                     first_name: { type: string, example: "Ana" }
+ *                     last_name: { type: string, example: "García" }
+ *                     email: { type: string, example: "ana@example.com" }
+ *       400:
+ *         description: ID inválido
  *       404:
  *         description: No encontrado
  */
@@ -98,8 +137,8 @@ router.get('/:uid', usersController.getUser);
  * @swagger
  * /api/users/{uid}:
  *   put:
- *     summary: Actualizar usuario
  *     tags: [Users]
+ *     summary: Actualizar usuario
  *     parameters:
  *       - in: path
  *         name: uid
@@ -126,8 +165,8 @@ router.put('/:uid', usersController.updateUser);
  * @swagger
  * /api/users/{uid}:
  *   delete:
- *     summary: Eliminar usuario
  *     tags: [Users]
+ *     summary: Eliminar usuario
  *     parameters:
  *       - in: path
  *         name: uid
