@@ -4,6 +4,37 @@ import request from 'supertest';
 import mongoose from 'mongoose';
 import app from '../src/app.js';
 
+// Helper: obtiene el primer objeto dentro del body que tenga _id o id
+function extractDocWithId(body) {
+  if (!body) return null;
+
+  // candidatos directos comunes
+  const direct = [body, body?.payload, body?.data, body?.result, body?.adoption];
+  for (const c of direct) {
+    if (c && typeof c === 'object' && (c._id || c.id)) return c;
+  }
+
+  // si payload es array, probamos primer elemento
+  if (Array.isArray(body?.payload) && body.payload.length) {
+    const first = body.payload[0];
+    if (first && (first._id || first.id)) return first;
+  }
+
+  // búsqueda profunda
+  const stack = [body];
+  while (stack.length) {
+    const node = stack.pop();
+    if (node && typeof node === 'object') {
+      if (node._id || node.id) return node;
+      for (const key of Object.keys(node)) {
+        const val = node[key];
+        if (val && typeof val === 'object') stack.push(val);
+      }
+    }
+  }
+  return null;
+}
+
 const getPayload = (body) => body?.payload ?? body;
 
 // Usamos DB de pruebas
@@ -49,17 +80,23 @@ describe('Adoption Router - Functional Tests', function () {
   });
 
   it('POST /api/adoptions debe crear una adopción (éxito)', async function () {
+    // Si tu router usa la variante con body (shim agregado): POST /api/adoptions
     const res = await request(app)
       .post('/api/adoptions')
       .set('Content-Type', 'application/json')
-      // Ajustá las keys si tu router usa nombres distintos (p. ej. userId/petId)
+      // Cambiá a { userId, petId } si tu controller lo espera así.
       .send({ uid: userId, pid: petId });
 
+    // Si preferís el contrato original, usa en su lugar:
+    // const res = await request(app).post(`/api/adoptions/${userId}/${petId}`);
+
     expect([200, 201]).to.include(res.status);
-    const body = res.body || {};
-    const created = body.payload ?? body;
-    adoptionId = created?._id || created?.id;
-    expect(adoptionId).to.exist;
+
+    const createdDoc = extractDocWithId(res.body);
+    expect(createdDoc, 'la respuesta no contiene un documento con _id/id').to.exist;
+
+    adoptionId = createdDoc._id || createdDoc.id;
+    expect(adoptionId, 'no se pudo extraer el id de la adopción creada').to.exist;
   });
 
   it('GET /api/adoptions debe listar adopciones', async function () {
@@ -67,7 +104,6 @@ describe('Adoption Router - Functional Tests', function () {
     expect(res.status).to.equal(200);
     const list = getPayload(res.body);
     expect(list).to.be.an('array');
-    // opcional: debería contener la recién creada
     if (adoptionId) {
       const found = list.find((a) => (a._id || a.id) === adoptionId);
       expect(found, 'adoption creada debe estar en la lista').to.exist;
@@ -83,8 +119,7 @@ describe('Adoption Router - Functional Tests', function () {
   it('GET /api/adoptions/:aid con id válido debería devolver 200', async function () {
     if (!adoptionId) this.skip();
     const res = await request(app).get(`/api/adoptions/${adoptionId}`);
-    expect([200, 404]).to.include(res.status);
-    // Algunas implementaciones no tienen GET by id; si devuelve 404 está bien.
+    expect([200, 404]).to.include(res.status); // si no existe endpoint by id, 404 está bien
   });
 
   // (Opcional) si tu API evita adoptar dos veces la misma mascota:
