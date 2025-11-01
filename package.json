@@ -7,8 +7,10 @@
   "scripts": {
     "start": "node src/app.js",
     "dev": "nodemon src/app.js",
+    "pretest": "rimraf .nyc_output coverage .nyc_tmp",
     "test": "cross-env NODE_ENV=test nyc mocha --timeout 10000 \"test/**/*.test.js\"",
-    "coverage:report": "nyc report --reporter=text-summary --reporter=html"
+    "coverage:report": "nyc report --reporter=text-summary --reporter=html",
+    "test:no-coverage": "cross-env NODE_ENV=test mocha --timeout 10000 \"test/**/*.test.js\""
   },
   "keywords": [],
   "author": "",
@@ -28,6 +30,7 @@
     "cross-env": "^10.1.0",
     "mocha": "^10.8.2",
     "nyc": "^17.1.0",
+    "rimraf": "^6.1.0",
     "supertest": "^7.1.4"
   },
   "nyc": {
@@ -36,6 +39,7 @@
     "exclude": ["test/**"],
     "extension": [".js"],
     "reporter": ["text-summary", "html"],
-    "report-dir": "./coverage"
+    "report-dir": "./coverage",
+    "temp-dir": "./.nyc_tmp"
   }
 }
