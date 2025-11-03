@@ -58,3 +58,28 @@ Crear un archivo **.env** en la **raíz** del proyecto (mismo nivel que `package
   - Atlas: `mongodb+srv://<user>:<pass>@<cluster>/adoptme`  
   y que Mongo esté corriendo.  
 - **Error 500 al insertar en `/generateData`**: suele ser por diferencias entre campos del mock y tus Schemas (mismatch de nombres o `required`). Ajustá `utils/mocking.js` para alinearlo con tus modelos.
+
+## Tests (Mocha + Chai + Supertest + NYC)
+1. Ejecutar tests: npm test
+2. Ver reporte de cobertura: npm run coverage:report (genera carpeta coverage/)
+3. DB de prueba: crear .env.test en la raíz con `MONGO_URL=mongodb://127.0.0.1:27017/adoptme_test` y `PORT=8081` (los tests usan NODE_ENV=test).
+**Nota**: la carpeta test/ está en el repositorio (no está en `.gitignore`) para la corrección. En la imagen Docker, test/ se omite vía .dockerignore.
+
+## Swagger (Users)
+- Documentación en vivo: `http://localhost:8080/api/docs`
+- Incluye al menos: `GET /api/users`, `POST /api/users`, `GET /api/users/{uid}` (más endpoints según disponibilidad).
+- Recomendado: probar desde la UI de Swagger con “Try it out”.
+
+## Docker (build, run, push)
+- Build local: `docker build -t mercedes79/adoptme:latest` .
+- Run local (usa Mongo local): `docker run --name adoptme -p 8080:8080 -e` `MONGO_URL="mongodb://host.docker.internal:27017/adoptme" mercedes79/adoptme:latest`
+- Probar en navegador: `http://localhost:8080/health` y `http://localhost:8080/api/docs`
+- Detener contenedor: docker stop adoptme
+- Eliminar contenedor: docker rm adoptme
+- Login a Docker Hub: docker login
+- Push de la imagen: docker push `mercedes79/adoptme:latest`
+- Imagen pública en Docker Hub (pull directo): `https://hub.docker.com/r/mercedes79/adoptme` — comando: `docker pull mercedes79/adoptme:latest`
+
+## Notas de Docker para la corrección
+- En .dockerignore se excluyen node_modules, .env, .env.test, test, coverage, .git*, etc., para imágenes más livianas.
+- Los tests se corren desde el repositorio (no dentro de la imagen). La imagen está pensada para ejecución de la app.
