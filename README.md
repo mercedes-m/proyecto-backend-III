@@ -1,4 +1,4 @@
-# Proyecto Backend III – Entrega 1 (Mocks)
+# Proyecto Backend III 
 
 Este proyecto (Node.js + Express + MongoDB) agrega un router de **mocks** para generar **usuarios** y **mascotas** de prueba, **insertar** datos en la base y **verificar** los registros vía endpoints. Reutiliza la arquitectura del proyecto base (controllers, services, repositories, models/DTOs).
 
@@ -78,7 +78,7 @@ Crear un archivo **.env** en la **raíz** del proyecto (mismo nivel que `package
 - Eliminar contenedor: docker rm adoptme
 - Login a Docker Hub: docker login
 - Push de la imagen: docker push `mercedes79/adoptme:latest`
-- Imagen pública en Docker Hub (pull directo): `https://hub.docker.com/r/mercedes79/adoptme` — comando: `docker pull mercedes79/adoptme:latest`
+- Imagen pública en Docker Hub: `https://hub.docker.com/r/mercedes79/adoptme` — comando: `docker pull mercedes79/adoptme:latest`
 
 ## Notas de Docker para la corrección
 - En .dockerignore se excluyen node_modules, .env, .env.test, test, coverage, .git*, etc., para imágenes más livianas.
