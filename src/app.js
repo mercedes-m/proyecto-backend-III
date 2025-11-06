@@ -22,14 +22,15 @@ import errorHandler from './middlewares/errorHandler.js';
 const app = express();
 const PORT = process.env.PORT || 8080;
 
-// (Opcional) silenciar warning de strictQuery en Mongoose 7
-// mongoose.set('strictQuery', true);
-
 // Conexión a MongoDB (usa MONGO_URL de .env o .env.test)
 mongoose
   .connect(process.env.MONGO_URL)
-  .then(() => logger.info('Conectado a MongoDB'))
-  .catch((err) => logger.error('Error al conectar con MongoDB', { error: err.message }));
+  .then(() => (logger?.info ? logger.info('Conectado a MongoDB') : console.log('Conectado a MongoDB')))
+  .catch((err) =>
+    (logger?.error
+      ? logger.error('Error al conectar con MongoDB', { error: err.message })
+      : console.error('Error al conectar con MongoDB:', err.message))
+  );
 
 // Middlewares base
 app.use(express.json());
@@ -38,7 +39,8 @@ app.use(compression());
 
 // Log básico de cada request
 app.use((req, _res, next) => {
-  logger.info(`${req.method} ${req.originalUrl}`);
+  if (logger?.info) logger.info(`${req.method} ${req.originalUrl}`);
+  else console.log(`${req.method} ${req.originalUrl}`);
   next();
 });
 
@@ -55,7 +57,14 @@ app.use('/api/mocks', mocksRouter);
 // Swagger UI
 app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-// Error handler SIEMPRE al final
+// 404 para rutas no encontradas (pasa al errorHandler)
+app.use((req, res, next) => {
+  const err = new Error('Not Found');
+  err.status = 404;
+  next(err);
+});
+
+// Error handler
 app.use(errorHandler);
 
 // Exportar la app para poder testear con supertest
@@ -63,5 +72,8 @@ export default app;
 
 // Levantar servidor SOLO si no estamos en test
 if (process.env.NODE_ENV !== 'test') {
-  app.listen(PORT, () => logger.info(`Servidor escuchando en el puerto ${PORT}`));
+  app.listen(PORT, () => {
+    if (logger?.info) logger.info(`Servidor escuchando en el puerto ${PORT}`);
+    else console.log(`Servidor escuchando en el puerto ${PORT}`);
+  });
 }
